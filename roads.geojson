@@ -1,0 +1,358 @@
+{
+  "type": "FeatureCollection",
+  "name": "RoadAche_Corridors_Bhubaneswar_Traffic",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "seg-cuttack-road",
+      "properties": {
+        "id": "seg-cuttack-road",
+        "name": "Cuttack Road (Rasulgarh to Kalpana Sq / Laxmi Sagar)",
+        "corridor": "Cuttack-Puri Arterial Road",
+        "arm": "east",
+        "zone": "right",
+        "baseRisk": 82,
+        "trafficLevel": "High Risk (Critical)",
+        "speed": "14 km/h",
+        "highway": "primary",
+        "lanes": 4,
+        "speedLimit": "40 km/h",
+        "rootCause": "Heavy market bottleneck & commercial vehicle congestion"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.866535, 20.297176],
+          [85.867120, 20.294400],
+          [85.866750, 20.291250],
+          [85.865910, 20.287780],
+          [85.864750, 20.284500]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-nh16-north",
+      "properties": {
+        "id": "seg-nh16-north",
+        "name": "NH-16 (Rasulgarh to Palasuni / Cuttack NB)",
+        "corridor": "National Highway 16 Northbound",
+        "arm": "north",
+        "zone": "top",
+        "baseRisk": 64,
+        "trafficLevel": "Medium Risk",
+        "speed": "38 km/h",
+        "highway": "trunk",
+        "lanes": 6,
+        "speedLimit": "60 km/h",
+        "rootCause": "Interstate freight truck lane weaving & merge"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.866535, 20.297176],
+          [85.869380, 20.301550],
+          [85.871820, 20.305180],
+          [85.874180, 20.308800]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-nh16-south",
+      "properties": {
+        "id": "seg-nh16-south",
+        "name": "NH-16 (Rasulgarh to Vani Vihar SB)",
+        "corridor": "National Highway 16 Southbound",
+        "arm": "south",
+        "zone": "bottom",
+        "baseRisk": 58,
+        "trafficLevel": "Medium Risk",
+        "speed": "42 km/h",
+        "highway": "trunk",
+        "lanes": 6,
+        "speedLimit": "60 km/h",
+        "rootCause": "Arterial flyover merge & auto-rickshaw queue"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.856500, 20.288500],
+          [85.860180, 20.291820],
+          [85.863780, 20.294620],
+          [85.866535, 20.297176]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-saheed-west",
+      "properties": {
+        "id": "seg-saheed-west",
+        "name": "Saheed Nagar Main Arterial Link (WB)",
+        "corridor": "Saheed Nagar West Arterial",
+        "arm": "west",
+        "zone": "left",
+        "baseRisk": 78,
+        "trafficLevel": "High Risk (Critical)",
+        "speed": "18 km/h",
+        "highway": "primary",
+        "lanes": 4,
+        "speedLimit": "40 km/h",
+        "rootCause": "Commercial shopping district turning delay & pedestrian surge"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.858000, 20.296800],
+          [85.861450, 20.296880],
+          [85.864480, 20.297050],
+          [85.866535, 20.297176]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-mancheswar",
+      "properties": {
+        "id": "seg-mancheswar",
+        "name": "Mancheswar Industrial Link Road (NB)",
+        "corridor": "Mancheswar Access Road",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 32,
+        "trafficLevel": "Low Risk (Free Flow)",
+        "speed": "48 km/h",
+        "highway": "secondary",
+        "lanes": 2,
+        "speedLimit": "40 km/h",
+        "rootCause": "Normal industrial logistics movement"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.866535, 20.297176],
+          [85.866650, 20.300500],
+          [85.866820, 20.304500],
+          [85.867050, 20.308500]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-bomikhal",
+      "properties": {
+        "id": "seg-bomikhal",
+        "name": "Bomikhal Flyover Link Road",
+        "corridor": "Bomikhal Flyover",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 86,
+        "trafficLevel": "High Risk (Critical)",
+        "speed": "12 km/h",
+        "highway": "secondary",
+        "lanes": 2,
+        "speedLimit": "40 km/h",
+        "rootCause": "Elevated ramp bottlenecks & narrow convergence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.861450, 20.296880],
+          [85.861800, 20.293500],
+          [85.863200, 20.290500],
+          [85.865910, 20.287780]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-palasuni-canal",
+      "properties": {
+        "id": "seg-palasuni-canal",
+        "name": "Palasuni Canal Ring Road",
+        "corridor": "Palasuni Bypass",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 48,
+        "trafficLevel": "Medium Risk",
+        "speed": "35 km/h",
+        "highway": "secondary",
+        "lanes": 2,
+        "speedLimit": "40 km/h",
+        "rootCause": "Moderate commuter bypass movement"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.871820, 20.305180],
+          [85.874450, 20.302500],
+          [85.876000, 20.298500],
+          [85.877000, 20.294500]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-chakeisiani",
+      "properties": {
+        "id": "seg-chakeisiani",
+        "name": "Chakeisiani Link Road",
+        "corridor": "Chakeisiani Connector",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 26,
+        "trafficLevel": "Low Risk (Free Flow)",
+        "speed": "50 km/h",
+        "highway": "tertiary",
+        "lanes": 2,
+        "speedLimit": "30 km/h",
+        "rootCause": "Unrestricted vehicular transit"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.869380, 20.301550],
+          [85.873500, 20.302800],
+          [85.877000, 20.303800]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-rasulgarh-market",
+      "properties": {
+        "id": "seg-rasulgarh-market",
+        "name": "Rasulgarh Bazar Internal Road",
+        "corridor": "Rasulgarh Local Market",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 91,
+        "trafficLevel": "High Risk (Critical)",
+        "speed": "8 km/h",
+        "highway": "residential",
+        "lanes": 2,
+        "speedLimit": "25 km/h",
+        "rootCause": "High pedestrian density & produce truck unloading"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.863780, 20.294620],
+          [85.865500, 20.295200],
+          [85.867120, 20.294400]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-puri-canal",
+      "properties": {
+        "id": "seg-puri-canal",
+        "name": "Puri Canal Embankment Road",
+        "corridor": "Canal Service Road",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 52,
+        "trafficLevel": "Medium Risk",
+        "speed": "32 km/h",
+        "highway": "tertiary",
+        "lanes": 2,
+        "speedLimit": "30 km/h",
+        "rootCause": "Narrow embankment clearance & 2-wheeler density"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.867120, 20.294400],
+          [85.869500, 20.292000],
+          [85.871500, 20.288500]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-vani-vihar-sq",
+      "properties": {
+        "id": "seg-vani-vihar-sq",
+        "name": "Vani Vihar Square Crossroad",
+        "corridor": "Vani Vihar Square Approach",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 62,
+        "trafficLevel": "Medium Risk",
+        "speed": "36 km/h",
+        "highway": "primary",
+        "lanes": 6,
+        "speedLimit": "50 km/h",
+        "rootCause": "Transit bus terminal convergence"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.854000, 20.286800],
+          [85.856500, 20.288500],
+          [85.857800, 20.292500]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-utkal-univ",
+      "properties": {
+        "id": "seg-utkal-univ",
+        "name": "Utkal University Boundary Road",
+        "corridor": "University North Avenue",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 22,
+        "trafficLevel": "Low Risk (Free Flow)",
+        "speed": "55 km/h",
+        "highway": "residential",
+        "lanes": 2,
+        "speedLimit": "30 km/h",
+        "rootCause": "Controlled campus traffic"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.856500, 20.288500],
+          [85.857800, 20.292500],
+          [85.858000, 20.296800]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "seg-goutam-nagar",
+      "properties": {
+        "id": "seg-goutam-nagar",
+        "name": "Goutam Nagar / Laxmi Sagar Connector",
+        "corridor": "Laxmi Sagar Cross",
+        "arm": null,
+        "zone": null,
+        "baseRisk": 74,
+        "trafficLevel": "High Risk (Critical)",
+        "speed": "20 km/h",
+        "highway": "secondary",
+        "lanes": 2,
+        "speedLimit": "35 km/h",
+        "rootCause": "Railway line bottleneck & market merge"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [85.864750, 20.284500],
+          [85.862500, 20.283800],
+          [85.860000, 20.283500]
+        ]
+      }
+    }
+  ]
+}

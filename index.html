@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoadAche · AI Road-Safety Alert System</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚦</text></svg>">
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet 1.9 CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Load Config First -->
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- Full-width Critical Alert Banner (Shown on High Risk >=70) -->
+  <aside id="highRiskBanner" class="alert-banner hidden" role="alert" aria-live="assertive">
+    <div class="banner-inner">
+      <div class="banner-left">
+        <span class="banner-icon-pulse">⚠️</span>
+        <div class="banner-text">
+          <strong id="bannerTitle">CRITICAL COLLISION RISK ALERT</strong>
+          <span id="bannerDetails">High collision risk detected on Cuttack Road. Risk Score: 82. Immediate engineer dispatch initiated.</span>
+        </div>
+      </div>
+      <div class="banner-actions">
+        <button id="bannerViewBtn" class="btn btn-sm btn-white">Focus Corridor</button>
+        <button id="bannerDispatchBtn" class="btn btn-sm btn-crimson">Send Now (SMS/Email)</button>
+        <button id="bannerDismissBtn" class="banner-close" aria-label="Dismiss banner">&times;</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top Navy Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-box">
+        <div class="logo-mark">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 22 8.5 22 12 13 15.5 22 22 22 12 2"/>
+            <line x1="12" y1="6" x2="12" y2="10"/>
+            <circle cx="12" cy="12" r="0.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">ROADACHE</span>
+          <span class="logo-subtitle">AI Road-Safety Radar</span>
+        </div>
+      </div>
+
+      <div class="header-divider"></div>
+
+      <div class="location-badge">
+        <span class="cam-icon">📹</span>
+        <span class="cam-title" id="camHeaderLabel">Camera 01 · Rasulgarh Square &amp; Cuttack Rd</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span class="status-text">LIVE</span>
+      </div>
+      <div class="clock-display" id="liveClock">00:00:00</div>
+      <div class="sync-badge">
+        <svg class="sync-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+        </svg>
+        <span>Updated every 3 s</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button id="audioToggleBtn" class="btn btn-ghost" title="Toggle Alert Audio Sound">
+        <span id="audioIcon">🔊</span>
+        <span id="audioText" class="desktop-only">Audio On</span>
+      </button>
+
+      <button id="simulateBtn" class="btn btn-danger btn-pulse" title="Trigger high-risk near-miss for live stage demo (Key: N)">
+        <span class="btn-icon">⚡</span>
+        <span>Simulate Near-Miss</span>
+        <kbd class="key-hint">N</kbd>
+      </button>
+    </div>
+  </header>
+
+  <!-- Tri-Pane Main Workspace -->
+  <main class="main-layout">
+    
+    <!-- LEFT PANE: Video Feed + AI Telemetry -->
+    <section class="pane pane-left" aria-label="Camera Video & AI Telemetry">
+      
+      <!-- Video Card -->
+      <div class="card video-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title">Live Traffic Feed</h2>
+            <span class="badge badge-camera">Camera 01 · Rasulgarh Square</span>
+          </div>
+          <div class="card-badges">
+            <span class="badge badge-primary" id="modelBadge">Model: YOLOv8</span>
+            <span class="badge badge-sim hidden" id="simulatedBadge">simulated</span>
+          </div>
+        </div>
+
+        <div class="video-wrapper" id="videoWrapper">
+          <video id="trafficVideo" playsinline muted autoplay loop preload="auto">
+            <source src="assets/footage.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+          </video>
+          <canvas id="overlayCanvas"></canvas>
+
+          <!-- Zone Indicators Overlay on Video -->
+          <div class="zone-labels-overlay">
+            <div class="zone-pill zone-top" id="zoneBadgeTop" title="North Arm (NH-16 NB to Palasuni/Cuttack)">
+              <span class="zone-dir">N</span>
+              <span class="zone-val" id="zoneValTop">--</span>
+            </div>
+            <div class="zone-pill zone-bottom" id="zoneBadgeBottom" title="South Arm (NH-16 SB to Vani Vihar)">
+              <span class="zone-dir">S</span>
+              <span class="zone-val" id="zoneValBottom">--</span>
+            </div>
+            <div class="zone-pill zone-left" id="zoneBadgeLeft" title="West Arm (Saheed Nagar WB)">
+              <span class="zone-dir">W</span>
+              <span class="zone-val" id="zoneValLeft">--</span>
+            </div>
+            <div class="zone-pill zone-right" id="zoneBadgeRight" title="East Arm (Cuttack Road EB)">
+              <span class="zone-dir">E</span>
+              <span class="zone-val" id="zoneValRight">--</span>
+            </div>
+          </div>
+
+          <!-- Video playback controls / fallback banner -->
+          <div class="video-overlay-ctrls">
+            <span class="timestamp-chip" id="videoTimeChip">00:00.00</span>
+            <span class="fps-chip" id="videoFpsChip">30 FPS</span>
+          </div>
+        </div>
+
+        <!-- 4 Junction Arms Live Status -->
+        <div class="arms-grid">
+          <div class="arm-card" id="armCardNorth">
+            <div class="arm-title"><span class="arm-dir-tag">NORTH</span> NH-16 NB (Cuttack)</div>
+            <div class="arm-metric"><span id="armScoreNorth">--</span> <small>RISK</small></div>
+            <div class="arm-status" id="armStatusNorth">Evaluating...</div>
+          </div>
+          <div class="arm-card" id="armCardSouth">
+            <div class="arm-title"><span class="arm-dir-tag">SOUTH</span> NH-16 SB (Vani Vihar)</div>
+            <div class="arm-metric"><span id="armScoreSouth">--</span> <small>RISK</small></div>
+            <div class="arm-status" id="armStatusSouth">Evaluating...</div>
+          </div>
+          <div class="arm-card" id="armCardWest">
+            <div class="arm-title"><span class="arm-dir-tag">WEST</span> Saheed Nagar Link</div>
+            <div class="arm-metric"><span id="armScoreWest">--</span> <small>RISK</small></div>
+            <div class="arm-status" id="armStatusWest">Evaluating...</div>
+          </div>
+          <div class="arm-card" id="armCardEast">
+            <div class="arm-title"><span class="arm-dir-tag">EAST</span> Cuttack Road</div>
+            <div class="arm-metric"><span id="armScoreEast">--</span> <small>RISK</small></div>
+            <div class="arm-status" id="armStatusEast">Evaluating...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live AI Telemetry Stats Card -->
+      <div class="card ai-stats-card">
+        <div class="card-header">
+          <h2 class="card-title">YOLOv8 Edge Telemetry</h2>
+          <span class="telemetry-ping" id="telemetryState">Active Track</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <span class="stat-label">Vehicles in Frame</span>
+            <span class="stat-value" id="statVehicles">0</span>
+            <span class="stat-sub">Cars, Buses, Trucks</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Near-Miss Conflicts</span>
+            <span class="stat-value text-amber" id="statNearMisses">0</span>
+            <span class="stat-sub">Trajectory IoU &gt; 0.12</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Camera Junction Risk</span>
+            <span class="stat-value text-green" id="statCameraRisk">0</span>
+            <span class="stat-sub">0-100 composite index</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Deceleration Events</span>
+            <span class="stat-value" id="statSpeedDrops">0</span>
+            <span class="stat-sub">&gt;60 px/s sudden drops</span>
+          </div>
+        </div>
+
+        <div class="telemetry-bar-row">
+          <div class="bar-header">
+            <span>Minimum Inter-Vehicle Gap</span>
+            <strong id="statMinGapText">-- px</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="gapProgressBar" style="width: 75%"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CENTER PANE: Google Maps View with Fake Traffic Visualizations -->
+    <section class="pane pane-center" aria-label="Interactive Risk Corridor Map">
+      <div class="card map-card">
+        
+        <!-- Google Map Container -->
+        <div id="map" class="map-view"></div>
+
+        <!-- Floating Road Selector Bar -->
+        <div class="map-road-selector-bar">
+          <span class="selector-icon">🚦</span>
+          <label for="roadSelectDropdown" class="selector-label">Select Road:</label>
+          <select id="roadSelectDropdown" class="road-select-dropdown">
+            <option value="">-- Click a road on map or select here --</option>
+          </select>
+        </div>
+
+        <!-- Floating Map Legend -->
+        <div class="map-floating-legend">
+          <div class="legend-header">Traffic Risk Classification</div>
+          <div class="legend-items">
+            <div class="legend-row">
+              <span class="legend-swatch swatch-green"></span>
+              <span class="legend-label">Low / Free Flow (&lt;40)</span>
+            </div>
+            <div class="legend-row">
+              <span class="legend-swatch swatch-amber"></span>
+              <span class="legend-label">Medium (40–70 · Orange/Amber)</span>
+            </div>
+            <div class="legend-row">
+              <span class="legend-swatch swatch-red swatch-pulse"></span>
+              <span class="legend-label">High Risk (&ge;70 · Red / Critical)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Map Controls -->
+        <div class="map-floating-controls">
+          <button id="recenterBtn" class="map-control-btn" title="Recenter to ~2.0 km² Area">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="22" y1="12" x2="18" y2="12"/>
+              <line x1="6" y1="12" x2="2" y2="12"/>
+              <line x1="12" y1="6" x2="12" y2="2"/>
+              <line x1="12" y1="22" x2="12" y2="18"/>
+            </svg>
+          </button>
+          <button id="focusCamBtn" class="map-control-btn" title="Focus Camera 01 (Rasulgarh Square)">
+            <span style="font-size: 15px;">📹</span>
+          </button>
+        </div>
+
+        <!-- Floating Corridor Count Tag -->
+        <div class="map-bounds-tag">
+          <span class="pulse-indicator"></span>
+          <span>Google Maps · Rasulgarh &amp; Cuttack Rd · <strong>13 Colored Corridors</strong></span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: Risk Gauge + Alert Log + Engineer Contact -->
+    <section class="pane pane-right" aria-label="Risk Gauge & Alert Actions">
+      
+      <!-- Live Area Risk Index Gauge Card -->
+      <div class="card gauge-card">
+        <div class="card-header">
+          <h2 class="card-title">Live Area Risk Index</h2>
+          <span class="badge badge-neutral" id="areaRiskSummaryTag">Normal</span>
+        </div>
+
+        <div class="gauge-container">
+          <div class="gauge-svg-wrap">
+            <svg class="gauge-svg" viewBox="0 0 220 130">
+              <!-- Background Arc -->
+              <path class="gauge-bg" d="M 20 115 A 90 90 0 0 1 200 115" fill="none" stroke="#E2E8F0" stroke-width="18" stroke-linecap="round"/>
+              <!-- Colored Progress Arc -->
+              <path id="gaugeProgressArc" class="gauge-fill" d="M 20 115 A 90 90 0 0 1 200 115" fill="none" stroke="#22C55E" stroke-width="18" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="180"/>
+              <!-- Needle Pointer -->
+              <circle cx="110" cy="115" r="7" fill="#0B1020"/>
+              <line id="gaugeNeedle" x1="110" y1="115" x2="110" y2="35" stroke="#0B1020" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-num" id="gaugeValue">58</span>
+              <span class="gauge-unit">/ 100</span>
+            </div>
+          </div>
+
+          <div class="gauge-breakdown">
+            <div class="breakdown-item text-green">
+              <strong id="countGreen">3</strong>
+              <span>Safe</span>
+            </div>
+            <div class="breakdown-item text-amber">
+              <strong id="countAmber">5</strong>
+              <span>Medium</span>
+            </div>
+            <div class="breakdown-item text-red">
+              <strong id="countRed">5</strong>
+              <span>High Risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Log Card -->
+      <div class="card alerts-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title">Dispatched Alert Log</h2>
+            <span class="alert-count-chip" id="alertCountBadge">0</span>
+          </div>
+          <button id="clearLogsBtn" class="btn btn-link btn-xs">Clear</button>
+        </div>
+
+        <div class="alerts-list" id="alertsList">
+          <div class="alerts-empty" id="alertsEmptyState">
+            <div class="empty-icon">🛡️</div>
+            <p>No active collision hazards. Corridors are within safe operating limits.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Card: Road Engineer Contact -->
+      <div class="card contact-card">
+        <div class="card-header">
+          <h2 class="card-title">Road Engineer Contact</h2>
+          <button id="editContactBtn" class="btn btn-outline btn-xs">Edit</button>
+        </div>
+
+        <div class="contact-info-view" id="contactDisplayView">
+          <div class="contact-summary-banner">
+            <span class="contact-alert-icon">📬</span>
+            <div class="contact-alert-text">
+              <span class="label-tiny">AUTOMATED ALERTS GO TO:</span>
+              <strong id="displayEngineerName">Alex Vance, P.E.</strong>
+            </div>
+          </div>
+
+          <div class="contact-details-grid">
+            <div class="detail-row">
+              <span class="detail-label">Phone:</span>
+              <span class="detail-value" id="displayEngineerPhone">+1 (212) 555-0199</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value" id="displayEngineerEmail">alex.vance@dot.gov</span>
+            </div>
+          </div>
+
+          <!-- Quick Dispatch Preview Actions -->
+          <div class="contact-actions-row">
+            <a id="quickSmsLink" href="sms:+12125550199?body=RoadAche%20Alert" class="btn btn-sm btn-outline flex-1 text-center" target="_blank" rel="noopener">
+              💬 Test SMS
+            </a>
+            <a id="quickEmailLink" href="mailto:alex.vance@dot.gov?subject=RoadAche%20Safety%20Notice" class="btn btn-sm btn-outline flex-1 text-center" target="_blank" rel="noopener">
+              ✉️ Test Email
+            </a>
+          </div>
+        </div>
+
+        <!-- Editable Form (Hidden until Edit is clicked) -->
+        <form id="contactEditForm" class="contact-form hidden">
+          <div class="form-group">
+            <label for="inputEngineerName">Engineer Full Name</label>
+            <input type="text" id="inputEngineerName" class="form-input" required placeholder="e.g. Alex Vance, P.E.">
+          </div>
+          <div class="form-group">
+            <label for="inputEngineerPhone">Mobile Phone (SMS Dispatch)</label>
+            <input type="tel" id="inputEngineerPhone" class="form-input" required placeholder="e.g. +1 (212) 555-0199">
+          </div>
+          <div class="form-group">
+            <label for="inputEngineerEmail">Work Email</label>
+            <input type="email" id="inputEngineerEmail" class="form-input" required placeholder="e.g. alex.vance@dot.gov">
+          </div>
+          <div class="form-error hidden" id="contactFormError"></div>
+          <div class="form-actions">
+            <button type="button" id="cancelContactBtn" class="btn btn-ghost btn-sm">Cancel</button>
+            <button type="submit" class="btn btn-crimson btn-sm">Save Contact</button>
+          </div>
+        </form>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Polished Footer Tagline -->
+  <footer class="footer">
+    <p class="footer-tagline">
+      A Google Maps-style platform that colors every road by accident risk and alerts engineers before crashes happen.
+    </p>
+    <div class="footer-meta">
+      <span>Google Maps Roadmap View</span>
+      <span>•</span>
+      <span>Cuttack Road &amp; Rasulgarh Traffic Corridors</span>
+      <span>•</span>
+      <span>20.297176° N, 85.866535° E</span>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Application Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
